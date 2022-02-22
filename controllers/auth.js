@@ -62,13 +62,13 @@ exports.certifications = async(req, res, next) => {
         console.log('이름 : ' + name + ', 성별 : ' + gender + ', 생일일자 : ' + birth);
         console.log('Unique key : ' + unique_key + ', unique_in_site : ' + unique_in_site);
 
-        exCellPhone = await User.fineOne({ where : { unique_key }})
+        const exCellPhone = await User.findOne({ where : { unique_key }});
         if (exCellPhone){
             console.log("핸드폰 중복 인증 불가");
             return res.status(400).send("핸드폰 중복 인증 불가");
         }
         console.log("핸드폰 인증 성공");
-        return res.status(201).send({ unique_key : unique_key});
+        return res.status(201).send({ unique_key : unique_key });
 
     } catch(err){
         console.log('certification error');

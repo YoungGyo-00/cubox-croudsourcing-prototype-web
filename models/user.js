@@ -16,10 +16,11 @@ module.exports = class User extends Sequelize.Model {
                 allowNull: false,
                 // unique: true,
             },
-            /* cellphone: {
-                type: Sequelize.STRING(11),
+            unique_key: {
+                type: Sequelize.STRING(100),
                 allowNull: false,
-            } */
+                primaryKey: true,
+            }
         }, {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)

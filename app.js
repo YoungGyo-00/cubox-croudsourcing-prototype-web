@@ -1,3 +1,4 @@
+// ip 주소 얻는 방법 - cmd 창 => ipconfig => IPV4 주소값
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -45,7 +46,7 @@ app.get('/', (req, res) => {
     res.send('Initial page');
 });
 
-app.use('/auth', authRouter); // req.user
+app.use('/api/auth', authRouter); // req.user
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);

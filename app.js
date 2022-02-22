@@ -10,6 +10,7 @@ dotenv.config(); // process.env => .env 파일을 읽음
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
+const authRouter = require('./routers/auth');
 
 const app = express();
 passportConfig(); // 패스포트 설정
@@ -22,7 +23,6 @@ sequelize.sync({ force: false })
         .catch((err) => {
             console.log(err);
         });
-
 app.use(morgan('dev')); // 추가적인 로그
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -41,10 +41,11 @@ app.use(passport.initialize()); // req.session 객체에 passport 정보 저장
 app.use(passport.session()); // express-session에서 객체 생성
 
 app.get('/', (req, res) => {
+    console.log('Initial page');
     res.send('Initial page');
 });
 
-app.use('/user', userRouter); // req.user
+app.use('/auth', authRouter); // req.user
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);
@@ -57,6 +58,7 @@ app.use((err, req, res, next) => {
     res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
     res.status(err.status || 500);
     console.log('error call : ', res.locals.message);
+    res.send('error');
 });
 
 app.listen(app.get('port'), () => {

@@ -80,8 +80,11 @@ exports.certifications = async(req, res, next) => {
 
         // console.log(certificationInfo);
         const { unique_key, unique_in_site, name, birthday, foreigner } = certificationInfo;
+        /* console.log("==========버그 수정============")
+        console.log(name);
+        console.log(foreigner);
         console.log('이름 : ' + name + ', 외국인 : ' + foreigner + ', 나이 : ' + parseInt(today.getFullYear()) - parseInt(birthday.substr(0,4)));
-        console.log('Unique key : ' + unique_key + ', unique_in_site : ' + unique_in_site);
+        console.log('Unique key : ' + unique_key + ', unique_in_site : ' + unique_in_site); */
 
         const exJoin = await User.findOne({ where : { unique_key }});
         if (exJoin){

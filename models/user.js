@@ -31,13 +31,12 @@ module.exports = class User extends Sequelize.Model {
                 unique: true
             },
             useragent: {
-                type: Sequelize.INTEGER(10),
+                type: Sequelize.STRING(15),
                 allowNull: false,
-                defaultValue: 0
             },
             signed: {
-                type: Sequelize.TINYINT(1),
-                defaultValue: 0
+                type: Sequelize.BOOLEAN,
+                defaultValue: false
             },
             foreigner: {
                 type: Sequelize.BOOLEAN,

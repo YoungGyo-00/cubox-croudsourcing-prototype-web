@@ -40,6 +40,7 @@ app.use(session({
         secure: false, // http 환경 아니더라도 사용 가능
     },
 }));
+// console.log(".env 확인 : " + process.env.COOKIE_SECRET + ", " + process.env.MAIL_EMAIL);
 app.use(passport.initialize()); // req.session 객체에 passport 정보 저장
 app.use(passport.session()); // express-session에서 객체 생성
 

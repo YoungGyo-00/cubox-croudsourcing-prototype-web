@@ -1,6 +1,10 @@
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const User = require('../models/user');
 
@@ -11,7 +15,10 @@ exports.signup = async(req, res, next) => {
     try {
         const exId = await User.findOne({ where : { email }});
         const exNick = await User.findOne({ where : { nickName }});
-
+/* 
+        if (!validator.isEmail(email)){
+            
+        } */
         if (exId) {
             console.log('아이디 중복 오류');
             return res.status(400).send('이미 회원인 상태입니다');
@@ -112,11 +119,57 @@ exports.logout = async (req, res) => {
     return res.status(200).send('로그아웃 성공');
 };
 
-exports.me = async (req, res) => {
-    if (req.isAuthenticated()) {
-        // console.log("auth/me : true");
-        return res.status(200).send(true);
+exports.me = async (req, res, next) => {
+    try{
+        if (req.isAuthenticated()) {
+            // console.log("auth/me : true");
+            return res.status(200).send(true);
+        }
+        // console.log("auth/me : false");
+        return res.status(400).send(false);
+    } catch (err) {
+        console.log("auth/me error");
+        next(err);
     }
-    // console.log("auth/me : false");
-    return res.status(400).send(false);
 };
+
+exports.mail = async (req, res, next) => {
+    try{
+        const user_email = req.body.email;
+        console.log("확인할 이메일 주소 형식 " + user_email);
+
+        const certificationNumber = Math.floor(Math.random() * 1000000) + 100000; // 난수 발생
+        if (certificationNumber > 1000000) {
+            certificationNumber = certificationNumber -100000;
+        }
+
+        console.log("인증 번호 : " + certificationNumber);
+
+        // 메일 발송 함수
+        // console.log("내가 이메일 보내는 주소 : ", process.env.MAIL_EMAIL);
+        // console.log("내가 이메일 보내는 비밀번호: " , process.env.MAIL_PASSWORD);
+        const transporter = nodemailer.createTransport({
+                service: 'Naver',
+                host: 'smtp.naver.com',
+                port: 587,
+                auth: {
+                    user: process.env.MAIL_EMAIL,
+                    pass: process.env.MAIL_PASSWORD
+                },
+                requireTLS: true
+            });
+
+        const info = await transporter.sendMail({
+            from: process.env.FROM_EMAIL,
+            to: user_email,
+            subject: '이메일 인증 요청 메일입니다.',
+            text: String(certificationNumber),
+        });
+        
+        console.log("인증 번호 요청 확인 메일 보냄" + certificationNumber);
+        await res.status(200).send({certificationNumber});
+    } catch (err) {
+        console.log("mail last error");
+        next(err);
+    }
+}

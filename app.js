@@ -16,6 +16,7 @@ const userRouter = require('./routers/user');
 const { isLoggedIn } = require('./middlewares');
 
 const app = express();
+const today = new Date();
 passportConfig(); // 패스포트 설정
 app.set('port', process.env.PORT || 8001); // 전역적으로 port 번호 생성
 
@@ -41,12 +42,7 @@ app.use(session({
     },
 }));
 
-/* 
-const a = "12345";
-const b = 1
-console.log(typeof(parseInt(b))); */
 
-// console.log(".env 확인 : " + process.env.COOKIE_SECRET + ", " + process.env.MAIL_EMAIL);
 app.use(passport.initialize()); // req.session 객체에 passport 정보 저장
 app.use(passport.session()); // express-session에서 객체 생성
 

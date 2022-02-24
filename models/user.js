@@ -42,8 +42,8 @@ module.exports = class User extends Sequelize.Model {
             foreigner: {
                 type: Sequelize.BOOLEAN,
             },
-            birthday: {
-                type: Sequelize.INTEGER(4),
+            age: {
+                type: Sequelize.INTEGER(2),
             }
         }, {
             sequelize,
@@ -51,7 +51,7 @@ module.exports = class User extends Sequelize.Model {
             underscored: false, 
             modelName: 'User',
             tableName: 'users',
-            paranoid: true, // createdAt, updatedAt, deletedAt 생성(true)
+            paranoid: false, // createdAt, updatedAt, deletedAt 생성(true)
             charset: 'utf8',
             collate: 'utf8_general_ci',
         });

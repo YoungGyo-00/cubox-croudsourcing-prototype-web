@@ -3,13 +3,14 @@ const bcrypt = require('bcrypt');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
+const today = new Date();
 
 dotenv.config();
 
 const User = require('../models/user');
 
 exports.signup = async(req, res, next) => {
-    const {email, password, name, nickName, unique_key, roleId, useragent, signed, foreigner, birthday} = req.body;
+    const {email, password, name, nickName, unique_key, roleId, useragent, signed, foreigner, age} = req.body;
     console.log("email : " + email + ', password : '+ password + ", name : " + name + 
                 "\nnickName : " + nickName + "unique_key : " + unique_key);
     try {
@@ -38,7 +39,7 @@ exports.signup = async(req, res, next) => {
             useragent,
             signed,
             foreigner,
-            birthday
+            age
         });
         
         console.log('회원가입 완료');
@@ -79,7 +80,7 @@ exports.certifications = async(req, res, next) => {
 
         // console.log(certificationInfo);
         const { unique_key, unique_in_site, name, birthday, foreigner } = certificationInfo;
-        console.log('이름 : ' + name + ', 외국인 : ' + foreigner + ', 태어난 연도 : ' + birthday.substr(0,4));
+        console.log('이름 : ' + name + ', 외국인 : ' + foreigner + ', 나이 : ' + parseInt(today.getFullYear()) - parseInt(birthday.substr(0,4)));
         console.log('Unique key : ' + unique_key + ', unique_in_site : ' + unique_in_site);
 
         const exJoin = await User.findOne({ where : { unique_key }});
@@ -88,7 +89,7 @@ exports.certifications = async(req, res, next) => {
             return res.status(400).send("핸드폰 중복 인증 불가");
         }
         console.log("핸드폰 인증 성공");
-        return res.status(201).send({ unique_key : unique_key, name : name , foreigner : foreigner, birthday : parseInt(birthday.substr(0,4))});
+        return res.status(201).send({ unique_key : unique_key, name : name , foreigner : foreigner, age : parseInt(today.getFullYear()) - parseInt(birthday.substr(0,4)) + 1});
 
     } catch(err){
         console.log('certification error');

@@ -21,7 +21,7 @@ module.exports = class Center extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Center.belongsTo(db.Supervisor, {foreignKey:'supervisorId', targetkey: 'userId'});
+        db.Center.belongsTo(db.Supervisor, {foreignKey:'supervisorId', targetkey: 'supervisorId'});
         db.Center.hasMany(db.Worker, {foreignKey:'centerId', sourceKey: 'id'});
         db.Center.hasMany(db.Job, {foreignKey:'centerId', sourceKey: 'id'});
     };

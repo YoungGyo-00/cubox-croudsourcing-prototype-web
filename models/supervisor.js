@@ -3,7 +3,11 @@ const Sequelize = require('sequelize');
 module.exports = class Supervisor extends Sequelize.Model {
     static init(sequelize){
         return super.init({
-
+            supervisorId: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true
+            },
         }, {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)
@@ -18,6 +22,6 @@ module.exports = class Supervisor extends Sequelize.Model {
 
     static associate(db){
         db.Supervisor.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId'});
-        db.Supervisor.hasMany(db.Center, { foreignKey: 'supervisorId', sourceKey: 'userId'});
+        db.Supervisor.hasMany(db.Center, { foreignKey: 'supervisorId', sourceKey: 'supervisorId'});
     };
 };

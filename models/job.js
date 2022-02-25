@@ -8,10 +8,6 @@ module.exports = class Job extends Sequelize.Model {
                 allowNull: false,
                 unique: true
             },
-            worker: {
-                type: Sequelize.INTEGER(10),
-                unique: true
-            }
         }, {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)
@@ -26,7 +22,7 @@ module.exports = class Job extends Sequelize.Model {
 
     static associate(db){
         db.Job.belongsTo(db.State, {foreignKey:'stateId', targetKey: 'id'});
-        db.Job.hasOne(db.Worker, { foreignKey: 'userId'} )
+        db.Job.belongsTo(db.Worker, { foreignKey: 'workerId', targetKey: 'workerId'});
         db.Job.belongsTo(db.Center, {foreignKey:'centerId', targetKey: 'id'});
     };
 };

@@ -3,6 +3,11 @@ const Sequelize = require('sequelize');
 module.exports = class Worker extends Sequelize.Model {
     static init(sequelize){
         return super.init({
+            workerId: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true
+            },
         }, {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)
@@ -18,6 +23,6 @@ module.exports = class Worker extends Sequelize.Model {
     static associate(db){
         db.Worker.belongsTo(db.Center, { foreignKey: 'centerId', targetKey: 'id'});
         db.Worker.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId'});
-        db.Worker.hasOne(db.Job, { foreignKey: 'worker'} )
+        db.Worker.hasMany(db.Job, { foreignKey: 'workerId', sourceKey: 'workerId'} )
     };
 };

@@ -17,8 +17,7 @@ module.exports = class Supervisor extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Supervisor.hasMany(db.Worker, {foreignKey:'SupervisorId', sourceKey: 'id'});
-        db.Supervisor.belongsTo(db.Role, { foreignKey: 'roleId', targetKey: 'id'});
-        db.Supervisor.belongsTo(db.Center, { foreignKey: 'centerId', targetKey: 'id'});
+        db.Supervisor.belongsTo(db.User, { foreignKey: 'userId', targetKey: 'userId'});
+        db.Supervisor.hasMany(db.Center, { foreignKey: 'supervisorId', sourceKey: 'userId'});
     };
 };

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Center extends Sequelize.Model {
+module.exports = class Job extends Sequelize.Model {
     static init(sequelize){
         return super.init({
             name: {
@@ -8,12 +8,16 @@ module.exports = class Center extends Sequelize.Model {
                 allowNull: false,
                 unique: true
             },
+            worker: {
+                type: Sequelize.INTEGER(10),
+                unique: true
+            }
         }, {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)
             underscored: false, 
-            modelName: 'Center',
-            tableName: 'centers',
+            modelName: 'Job',
+            tableName: 'jobs',
             paranoid: false, // createdAt, updatedAt, deletedAt 생성(true)
             charset: 'utf8',
             collate: 'utf8_general_ci',
@@ -21,8 +25,8 @@ module.exports = class Center extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Center.belongsTo(db.Supervisor, {foreignKey:'supervisorId', targetkey: 'userId'});
-        db.Center.hasMany(db.Worker, {foreignKey:'centerId', sourceKey: 'id'});
-        db.Center.hasMany(db.Job, {foreignKey:'centerId', sourceKey: 'id'});
+        db.Job.belongsTo(db.State, {foreignKey:'stateId', targetKey: 'id'});
+        db.Job.hasOne(db.Worker, { foreignKey: 'userId'} )
+        db.Job.belongsTo(db.Center, {foreignKey:'centerId', targetKey: 'id'});
     };
 };

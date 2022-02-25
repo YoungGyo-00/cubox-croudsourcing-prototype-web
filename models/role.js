@@ -3,7 +3,7 @@ const Sequelize = require('sequelize');
 module.exports = class Role extends Sequelize.Model {
     static init(sequelize){
         return super.init({
-            description: {
+            name: {
                 type: Sequelize.STRING(10),
                 allowNull: false,
                 unique: true

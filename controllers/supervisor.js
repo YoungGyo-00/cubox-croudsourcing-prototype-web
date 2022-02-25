@@ -14,14 +14,18 @@ exports.companylist = async (req, res, next) => {
                       from centers c\
                       left join workers w on c.id = w.centerId\
                       left join jobs j on c.id = j.centerid\
-                      where supervisorId = 1\
+                      where supervisorId = ${rep.supervisorId}\
                       group by 1, 3;`
         const [result, metadata] = await sequelize.query(query);
         
+
+        if(!result.length) {
+            return res.status(403).send({"message": "정보가 조회되지 않습니다."});
+        }
         let centerName = result[0].name;
         let totalJobs = 0;
         let waitingJobs = 0;
-
+        
         const arr = [];
         for (let i = 0; i<result.length; i++) {
             const temp = result[i].name;

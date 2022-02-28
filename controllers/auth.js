@@ -4,10 +4,11 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const today = new Date();
+const { v4 } = require('uuid');
 
 dotenv.config();
 
-const User = require('../models/user');
+const { User, Supervisor } = require('../models');
 
 exports.signup = async(req, res, next) => {
     const {email, password, name, nickName, unique_key, roleId, useragent, signed, foreigner, age} = req.body;
@@ -25,8 +26,10 @@ exports.signup = async(req, res, next) => {
             return res.status(400).send('중복된 닉네임이 있습니다');
         } 
 
+        const userId = v4();
         const hash = await bcrypt.hash(password, 10); // 2^12번 해싱 라운드(salt round - 2번째 인자) => Cost
         await User.create({
+            userId: userId,
             email,
             password: hash,
             name,
@@ -37,6 +40,11 @@ exports.signup = async(req, res, next) => {
             signed,
             foreigner,
             age
+        });
+
+        await Supervisor.create({
+            supervisorId : userId,
+            userId : userId,
         });
         
         console.log('회원가입 완료');
@@ -113,7 +121,7 @@ exports.login = async (req, res, next) => {
                 return next(loginError);
             }
             console.log(`${user.nickName}님 로그인 성공`);
-            return res.status(201).send(`${user.nickName}님 로그인 성공`);
+            return res.status(201).send({userId: user.userId});
         })
     })(req, res, next)
 };
@@ -128,8 +136,7 @@ exports.logout = async (req, res) => {
 exports.me = async (req, res, next) => {
     try{
         if (req.isAuthenticated()) {
-            console.log("roleId : " + req.user.roleId);
-            return res.status(200).send({roleId: req.user.roleId});
+            return res.status(200).send({roleId: req.user.roleId, userId: req.user.userId});
         }
         return res.status(400).send(false);
     } catch (err) {

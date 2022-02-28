@@ -1,23 +1,16 @@
 const { Job, Supervisor, Worker } = require('../models');
 const { sequelize } = require('../models');
+const Sequelize = require('sequelize');
 
 exports.companylist = async (req, res, next) => {
     try {
-
-        const rep = await Supervisor.findOne({
-            where : { userId : req.query.userId },
-            attributes: ['supervisorId'],
-            raw: true,
-        });
-
         const query = `select c.id, c.name, count(distinct w.userId) as worker, j.stateId, count(distinct j.id) as job\
                        from centers c\
                        left join workers w on c.id = w.centerId\
                        left join jobs j on c.id = j.centerid\
-                       where supervisorId = ${rep.supervisorId}\
+                       where supervisorId = '${req.query.userId}'\
                        group by 2, 4;`
         const [result, metadata] = await sequelize.query(query);
-        
 
         if(!result.length) {
             return res.status(403).send({"message": "정보가 조회되지 않습니다."});
@@ -59,22 +52,16 @@ exports.companylist = async (req, res, next) => {
 
 exports.workerinfo = async (req, res, next) => {
     try {
-
         const job = await Job.findAll({
             where : { centerId : req.query.centerId },
-            attributes : ['workerId', 'name' , 'id', 'total', 'submitted'],
-            raw: true,
+            attributes : ['workerId', ['name', 'jobName'] , ['id', 'jobId'], 'total', 'submitted'],
+            raw: true
         });
-
+        
         const result = [];
         for (let i = 0; i < job.length; i++){
-            const achievement = (job[i].submitted / job[i].total * 100) + '%';
-            const rep = await Worker.findOne({
-                where : { workerId: job[i].workerId },
-                attributes: ['userId'],
-                raw: true,
-            });
-            result.push({workerId: rep.userId, jobName: job[i].name, jobId: job[i].id, achievement: achievement});
+            const achievement = parseFloat(job[i].submitted / job[i].total * 100);
+            result.push({workerId: job[i].workerId, jobName: job[i].jobName, jobId: job[i].jobId, achievement: achievement});
         }
         return res.status(200).send(JSON.stringify(result));
     } catch (err) {

@@ -1,4 +1,4 @@
-const { Job } = require('../models');
+const { Job, Center } = require('../models');
 const { sequelize } = require('../models');
 
 exports.companylist = async (req, res, next) => {
@@ -73,7 +73,7 @@ exports.GetJobs = async (req, res, next) => {
     try {
         const job = await Job.findAll({
             where : { centerId : req.query.centerId },
-            attributes : [['id', 'jobId'], ['name', 'jobName'], ['stateId', 'isAssigned'] , ['workerId', 'assignWorkerId']],
+            attributes : [['id', 'jobId'], ['name', 'jobName'], ['stateId', 'assignState'] , ['workerId', 'assignWorkerId']],
         });
 
         console.log("센터에 배정된 모든 job 정보");
@@ -85,5 +85,29 @@ exports.GetJobs = async (req, res, next) => {
 };
 
 exports.assignment = async (req, res, next) => {
+    try {
+        const { jobId, workerId } = req.body;
 
+        const isAssigned = await Job.findOne({
+            where: { id: jobId },
+            attributes: ['stateId']
+        });
+
+        if (isAssigned.stateId != 1) {
+            console.log("이미 다른 worker에게 할당된 Job입니다.");
+            return res.status(403).send({"message": "이미 다른 worker에게 할당된 Job입니다"});
+        } 
+
+        await Job.update({
+            workerId : workerId,
+            stateId : 2,
+        }, {
+            where : { id: jobId },
+        });
+        console.log("Worker에게 Job 할당 완료");
+        return res.status(201).send({"message" : "Worker에게 Job 할당 완료"});
+    } catch (err) {
+        console.log("assignment error");
+        next(err);
+    }
 };

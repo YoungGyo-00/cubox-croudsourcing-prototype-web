@@ -1,6 +1,5 @@
-const { Job, Supervisor, Worker } = require('../models');
+const { Job } = require('../models');
 const { sequelize } = require('../models');
-const Sequelize = require('sequelize');
 
 exports.companylist = async (req, res, next) => {
     try {
@@ -60,7 +59,7 @@ exports.workerinfo = async (req, res, next) => {
         
         const result = [];
         for (let i = 0; i < job.length; i++){
-            const achievement = parseFloat(job[i].submitted / job[i].total * 100);
+            const achievement = parseFloat((job[i].submitted / job[i].total * 100).toFixed(2));
             result.push({workerId: job[i].workerId, jobName: job[i].jobName, jobId: job[i].jobId, achievement: achievement});
         }
         return res.status(200).send(JSON.stringify(result));

@@ -8,12 +8,10 @@ const { v4 } = require('uuid');
 
 dotenv.config();
 
-const { User, Supervisor } = require('../models');
+const { User, Supervisor, Worker } = require('../models');
 
 exports.signup = async(req, res, next) => {
     const {email, password, name, nickName, unique_key, roleId, useragent, signed, foreigner, age} = req.body;
-    /* console.log("email : " + email + ', password : '+ password + ", name : " + name + 
-                "\nnickName : " + nickName + "unique_key : " + unique_key); */
     try {
         const exId = await User.findOne({ where : { email }});
         const exNick = await User.findOne({ where : { nickName }});
@@ -42,13 +40,23 @@ exports.signup = async(req, res, next) => {
             age
         });
 
-        await Supervisor.create({
-            supervisorId : userId,
-            userId : userId,
-        });
+        if (roleId == 1) {
+            await Worker.create({
+                workerId : userId,
+                userId : userId,
+            });
+        } else if (roleId == 2) {
+            await Supervisor.create({
+                supervisorId : userId,
+                userId : userId,
+            });
+        } else {
+            console.log("회원가입 때 워커, 관리자 둘 중 하나 선택");
+            res.status(403).send({"message": "회원가입 시 워커, 관리자 둘 중 하나 선택해야함"});
+        }
         
         console.log('회원가입 완료');
-        return res.status(201).send('회원가입 성공');
+        return res.status(201).send({"message": "회원가입 성공"});
     } catch (err) {
         console.log('signup error');
         console.error(err);
@@ -130,7 +138,7 @@ exports.logout = async (req, res) => {
     req.logout();
     req.session.destroy();
     console.log('로그아웃 성공');
-    return res.status(200).send('로그아웃 성공');
+    return res.status(200).send({"message" : "로그아웃 성공"});
 };
 
 exports.me = async (req, res, next) => {

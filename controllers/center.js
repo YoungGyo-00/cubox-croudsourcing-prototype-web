@@ -68,3 +68,22 @@ exports.workerinfo = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.GetJobs = async (req, res, next) => {
+    try {
+        const job = await Job.findAll({
+            where : { centerId : req.query.centerId },
+            attributes : [['id', 'jobId'], ['name', 'jobName'], ['stateId', 'isAssigned'] , ['workerId', 'assignWorkerId']],
+        });
+
+        console.log("센터에 배정된 모든 job 정보");
+        return res.status(200).send(job);
+    } catch (err) {
+        console.log("getjobs error");
+        next(err);
+    }
+};
+
+exports.assignment = async (req, res, next) => {
+
+};

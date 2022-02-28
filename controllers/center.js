@@ -1,4 +1,4 @@
-const { Job, Center } = require('../models');
+const { Job } = require('../models');
 const { sequelize } = require('../models');
 
 exports.companylist = async (req, res, next) => {
@@ -29,7 +29,7 @@ exports.companylist = async (req, res, next) => {
                 }
                 totalJobs += result[i].job;
             } else {
-                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i].worker, totalJobs: totalJobs,
+                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i-1].worker, totalJobs: totalJobs,
                         assignedJobs: (totalJobs - waitingJobs), waitingJobs: waitingJobs});
                 centerName = temp;
                 totalJobs = 0;

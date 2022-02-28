@@ -14,7 +14,7 @@ const passportConfig = require('./passport');
 const authRouter = require('./routers/auth');
 const userRouter = require('./routers/user');
 const centerRouter = require('./routers/center');
-const { isLoggedIn, checkPermission } = require('./middlewares');
+const { isLoggedIn } = require('./middlewares');
 
 const app = express();
 passportConfig(); // 패스포트 설정
@@ -48,7 +48,7 @@ app.use(passport.session()); // express-session에서 객체 생성
 
 app.use('/api/auth', authRouter);
 app.use('/api/user', isLoggedIn, userRouter);
-app.use('/api/center', isLoggedIn, checkPermission, centerRouter);
+app.use('/api/center', isLoggedIn, centerRouter);
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);

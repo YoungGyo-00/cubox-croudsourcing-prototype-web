@@ -11,15 +11,12 @@ const User = require('../models/user');
 
 exports.signup = async(req, res, next) => {
     const {email, password, name, nickName, unique_key, roleId, useragent, signed, foreigner, age} = req.body;
-    console.log("email : " + email + ', password : '+ password + ", name : " + name + 
-                "\nnickName : " + nickName + "unique_key : " + unique_key);
+    /* console.log("email : " + email + ', password : '+ password + ", name : " + name + 
+                "\nnickName : " + nickName + "unique_key : " + unique_key); */
     try {
         const exId = await User.findOne({ where : { email }});
         const exNick = await User.findOne({ where : { nickName }});
-/* 
-        if (!validator.isEmail(email)){
-            
-        } */
+        
         if (exId) {
             console.log('아이디 중복 오류');
             return res.status(400).send('이미 회원인 상태입니다');
@@ -131,10 +128,9 @@ exports.logout = async (req, res) => {
 exports.me = async (req, res, next) => {
     try{
         if (req.isAuthenticated()) {
-            // console.log("auth/me : true");
-            return res.status(200).send(true);
+            console.log("roleId : " + req.user.roleId);
+            return res.status(200).send({roleId: req.user.roleId});
         }
-        // console.log("auth/me : false");
         return res.status(400).send(false);
     } catch (err) {
         console.log("auth/me error");

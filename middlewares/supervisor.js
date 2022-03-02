@@ -1,4 +1,4 @@
-const { Center, Supervisor } = require('../models');
+const { Center, Supervisor, Project } = require('../models');
 
 exports.checkSupervisor = async (req, res, next) => {
     try {
@@ -37,5 +37,15 @@ exports.checkCenter = async (req, res, next) => {
     } catch (err) {
         console.log("checkpermission error \n");
         next(err)
+    }
+};
+
+exports.checkProject = async (req, res, next) => {
+    try {
+
+
+    } catch (err) {
+        console.log("checkProject error");
+        next(err);
     }
 };

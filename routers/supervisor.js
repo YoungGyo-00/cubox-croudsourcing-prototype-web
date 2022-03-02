@@ -6,9 +6,9 @@ const Controller = require('../controllers/supervisor');
 const router = express.Router();
 
 router.get('/', Controller.companylist); // 관리자 메인 페이지
-router.get('/workers', Controller.workerinfo); // 센터에 배정된 워커 정보
-router.get('/project',checkCenter, Controller.GetProjects);
-router.get('/job', Controller.GetJobs);
-router.post('/assignment', checkCenter, Controller.assignment);
+router.get('/workers', checkCenter, Controller.workerinfo); // 센터에 배정된 워커 정보
+router.get('/project', checkCenter, Controller.GetProjects); // 해당 센터에 배정된 프로젝트 정보
+router.get('/job', checkCenter, Controller.GetJobs); // 해당 프로젝트에 배정된 Job 정보
+router.post('/assignment', checkCenter, Controller.assignment); 
 
 module.exports = router; 

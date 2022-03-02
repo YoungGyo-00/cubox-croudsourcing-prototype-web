@@ -7,7 +7,7 @@ exports.companylist = async (req, res, next) => {
                        from centers c\
                        left join workers w on c.id = w.centerId\
                        left join projects p on c.id = p.centerId\
-                       where supervisorId = '${req.query.userId}'\
+                       where supervisorId = '${req.user.userId}'\
                        group by c.name, p.name;`
         const [result, metadata] = await sequelize.query(query);
 
@@ -39,7 +39,7 @@ exports.companylist = async (req, res, next) => {
                 submittedProjects = 0;
             }
             if (i == result.length - 1) {
-                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i].worker, totalProjects: totalProjects,
+                arr.push({centerId: result[i].id, centerName: centerName, numberOfWorker: result[i].worker, totalProjects: totalProjects,
                     assignedProjects: assignedProjects, submittedProjects: submittedProjects, waitingProjects: (totalProjects - assignedProjects)});
             }
         }
@@ -107,7 +107,7 @@ exports.assignment = async (req, res, next) => {
             where: { id: jobId },
             attributes: ['stateId']
         });
-
+        
         if (isAssigned.stateId != 1) {
             console.log("이미 다른 worker에게 할당된 Job입니다.");
             return res.status(403).send({"message": "이미 다른 worker에게 할당된 Job입니다"});

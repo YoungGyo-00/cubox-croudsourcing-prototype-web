@@ -9,7 +9,7 @@ const passport = require('passport');
 
 dotenv.config(); // process.env => .env 파일을 읽음
 
-const { sequelize } = require('./models');
+const { sequelize } = require('./models')
 const passportConfig = require('./passport');
 const authRouter = require('./routers/auth');
 const userRouter = require('./routers/user');

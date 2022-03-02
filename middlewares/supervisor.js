@@ -35,17 +35,24 @@ exports.checkCenter = async (req, res, next) => {
         }
         next();
     } catch (err) {
-        console.log("checkpermission error \n");
+        console.log("checkCenter error \n");
         next(err)
     }
 };
 
 exports.checkProject = async (req, res, next) => {
-    try {
-
-
+    try{
+        const exProject = await Project.findOne({
+            where : {id : req.query.projectId },
+        });
+        
+        if (!exProject) {
+            console.log('존재하지 않는 프로젝트입니다');
+            return res.status(403).send("존재하지 않는 프로젝트입니다");
+        }
+        next();
     } catch (err) {
-        console.log("checkProject error");
-        next(err);
+        console.log("checkProject error \n");
+        next(err)
     }
-};
+}

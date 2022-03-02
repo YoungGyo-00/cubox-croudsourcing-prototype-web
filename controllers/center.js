@@ -87,6 +87,21 @@ exports.GetProjects = async (req, res, next) => {
     }
 };
 
+exports.GetJobs = async (req, res, next) => {
+    try {
+        const job = await Job.findAll({
+            where : {projectId : req.query.projectId},
+            attributes : [['id', 'jobId'], ['name', 'jobName'], 'total', 'submitted', 'workerId', 'stateId'],
+        });
+
+        console.log("특정 Project 내 Job list 반환");
+        return res.status(200).send(job);
+    } catch (err) {
+        console.log("getjobs error");
+        next(err);
+    }
+};
+
 exports.assignment = async (req, res, next) => {
     try {
         const { jobId, workerId } = req.body;

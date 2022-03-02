@@ -54,18 +54,15 @@ exports.companylist = async (req, res, next) => {
 
 exports.workerinfo = async (req, res, next) => {
     try {
-        const job = await Job.findAll({
-            where : { centerId : req.query.centerId },
-            attributes : ['workerId', ['name', 'jobName'] , ['id', 'jobId'], 'total', 'submitted'],
-            raw: true
-        });
-        
-        const result = [];
-        for (let i = 0; i < job.length; i++){
-            const achievement = parseFloat((job[i].submitted / job[i].total * 100).toFixed(2));
-            result.push({workerId: job[i].workerId, jobName: job[i].jobName, jobId: job[i].jobId, achievement: achievement});
-        }
-        return res.status(200).send(JSON.stringify(result));
+        const query = `select j.id, j.name, u.nickName, round((j.submitted / j.total * 100), 2) as achievement\
+                       from jobs j\
+                       left join users u on j.workerId = u.userId\
+                       where j.projectId = '${req.query.projectId}'\
+                       group by 1, 2, 3;`
+        const [result, metadata] = await sequelize.query(query);
+
+        console.log("Project 별 Worker 배정받은 Job 진행률 리스트 반환");
+        return res.status(200).send(result);
     } catch (err) {
         console.log("workerinfo error");
         next(err);

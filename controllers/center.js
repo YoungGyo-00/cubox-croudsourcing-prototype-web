@@ -1,43 +1,46 @@
-const { Job } = require('../models');
+const { Job, Project } = require('../models');
 const { sequelize } = require('../models');
 
 exports.companylist = async (req, res, next) => {
     try {
-        const query = `select c.id, c.name, count(distinct w.userId) as worker, j.stateId, count(distinct j.id) as job\
+        const query = `select c.id, c.name, count(distinct w.userId) as worker, p.total as total, p.assigned as assigned, p.submitted as submitted\ 
                        from centers c\
                        left join workers w on c.id = w.centerId\
-                       left join jobs j on c.id = j.centerid\
+                       left join projects p on c.id = p.centerId\
                        where supervisorId = '${req.query.userId}'\
-                       group by 2, 4;`
+                       group by c.name, p.name;`
         const [result, metadata] = await sequelize.query(query);
 
         if(!result.length) {
             return res.status(403).send({"message": "정보가 조회되지 않습니다."});
         }
         let centerName = result[0].name;
-        let totalJobs = 0;
-        let waitingJobs = 0;
+        let totalProjects = 0;
+        let assignedProjects = 0;
+        let submittedProjects = 0;
         
         const arr = [];
         for (let i = 0; i<result.length; i++) {
-            const temp = result[i].name;
-            const stateId = result[i].stateId;
+            const name = result[i].name;
+            const total = result[i].total;
+            const assigned = result[i].assigned;
+            const submitted = result[i].submitted;
             
-            if (temp == centerName) {
-                if ( stateId == 1 ) {
-                    waitingJobs = result[i].job;
-                }
-                totalJobs += result[i].job;
+            if (name == centerName) {
+                totalProjects += total;
+                assignedProjects += assigned;
+                submittedProjects += submitted;
             } else {
-                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i-1].worker, totalJobs: totalJobs,
-                        assignedJobs: (totalJobs - waitingJobs), waitingJobs: waitingJobs});
-                centerName = temp;
-                totalJobs = 0;
-                waitingJobs = 0;
+                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i-1].worker, totalProjects: totalProjects,
+                    assignedProjects: assignedProjects, submittedProjects: submittedProjects, waitingProjects: (totalProjects - assignedProjects)});
+                centerName = name;
+                totalProjects = 0;
+                assignedProjects = 0;
+                submittedProjects = 0;
             }
             if (i == result.length - 1) {
-                arr.push({centerId: result[i].id, centerName: centerName, numberOfWorker: result[i].worker, totalJobs: totalJobs,
-                    assignedJobs: (totalJobs - waitingJobs), waitingJobs: waitingJobs});
+                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i].worker, totalProjects: totalProjects,
+                    assignedProjects: assignedProjects, submittedProjects: submittedProjects, waitingProjects: (totalProjects - assignedProjects)});
             }
         }
 
@@ -69,17 +72,17 @@ exports.workerinfo = async (req, res, next) => {
     }
 };
 
-exports.GetJobs = async (req, res, next) => {
+exports.GetProjects = async (req, res, next) => {
     try {
-        const job = await Job.findAll({
+        const project = await Project.findAll({
             where : { centerId : req.query.centerId },
-            attributes : [['id', 'jobId'], ['name', 'jobName'], ['stateId', 'assignState'] , ['workerId', 'assignWorkerId']],
+            attributes : [['id', 'projectId'], ['name', 'projectName'], 'total', 'submitted'],
         });
 
-        console.log("센터에 배정된 모든 job 정보");
-        return res.status(200).send(job);
+        console.log("센터에 배정된 모든 Project 정보");
+        return res.status(200).send(project);
     } catch (err) {
-        console.log("getjobs error");
+        console.log("getprojects error");
         next(err);
     }
 };

@@ -52,7 +52,7 @@ app.use(passport.session()); // express-session에서 객체 생성
 app.use('/api/auth', authRouter);
 app.use('/api/user', isLoggedIn, userRouter);
 app.use('/api/supervisor', isLoggedIn, checkSupervisor, supervisorRouter);
-app.use('/api/worker', workerRouter);  // isLoggedIn, checkWorker middleware
+app.use('/api/worker', isLoggedIn, checkWorker, workerRouter);
 
 app.use((req, res, next) => {
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다`);

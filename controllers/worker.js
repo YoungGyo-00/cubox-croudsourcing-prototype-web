@@ -1,4 +1,4 @@
-const { Job } = require('../models');
+const { } = require('../models');
 const { sequelize } = require('../models');
 
 exports.main = async (req, res, next) => {
@@ -6,7 +6,7 @@ exports.main = async (req, res, next) => {
         const query = `select id as jobId, name as jobName, total, submitted, (total - submitted) as waiting,\
                        cast(submitted / total * 100 as DECIMAL(10,2)) as achievement\
                        from jobs\
-                       where workerId = 3;`
+                       where workerId = '${req.user.userId}';`
         const [result, metadata] = await sequelize.query(query);
 
         const job = result.map((x) => {
@@ -30,7 +30,7 @@ exports.main = async (req, res, next) => {
             return x;
             })
 
-        return res.status(200).send(Object.assign(total, result));
+        return res.status(200).send(Object.assign({total : total, jobInfo : result}));
 
     } catch (err) {
         console.log("Worker main page error");

@@ -3,7 +3,7 @@ const { Worker } = require('../models');
 exports.checkWorker = async (req, res, next) => {
     try {
         const exWorker = await Worker.findOne({
-            where : {userId: req.user.userId},
+            where : {workerId: req.user.userId},
         });
 
         if (!exWorker){

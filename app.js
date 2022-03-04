@@ -21,7 +21,7 @@ const { checkWorker } = require('./middlewares/worker');
 
 const app = express();
 passportConfig(); // 패스포트 설정
-app.set('port', process.env.PORT || 8001); // 전역적으로 port 번호 생성
+app.set('port', process.env.PORT || 8002); // 전역적으로 port 번호 생성
 
 sequelize.sync({ force: false })
         .then(() => {

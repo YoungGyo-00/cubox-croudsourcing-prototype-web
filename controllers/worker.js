@@ -30,6 +30,7 @@ exports.main = async (req, res, next) => {
             return x;
             })
 
+        console.log("Worker Main Page");
         return res.status(200).send(Object.assign({total : total, jobInfo : result}));
 
     } catch (err) {

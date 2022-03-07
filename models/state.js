@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = class Pstate extends Sequelize.Model {
+module.exports = class State extends Sequelize.Model {
     static init(sequelize){
         return super.init({
             name: {
@@ -12,8 +12,8 @@ module.exports = class Pstate extends Sequelize.Model {
             sequelize,
             timestamps: false, // createdAt, updatedAt, deleteAt 생성(true)
             underscored: false, 
-            modelName: 'Pstate',
-            tableName: 'pstates',
+            modelName: 'State',
+            tableName: 'states',
             paranoid: false, // createdAt, updatedAt, deletedAt 생성(true)
             charset: 'utf8',
             collate: 'utf8_general_ci',
@@ -21,6 +21,7 @@ module.exports = class Pstate extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Pstate.hasMany(db.Project, {foreignKey:'stateId', sourceKey: 'id'});
+        db.State.hasMany(db.Project, {foreignKey:'stateId', sourceKey: 'id'});
+        db.State.hasMany(db.Job, {foreignKey:'stateId', sourceKey: 'id'});
     };
 };

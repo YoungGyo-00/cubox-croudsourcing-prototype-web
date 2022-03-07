@@ -3,79 +3,32 @@ const { sequelize } = require('../models');
 
 exports.main = async (req, res, next) => {
     try {
-        const query = `select c.id, c.name, count(distinct w.userId) as worker, p.total as total, p.assigned as assigned, p.submitted as submitted\ 
-                       from centers c\
-                       left join workers w on c.id = w.centerId\
-                       left join projects p on c.id = p.centerId\
-                       where supervisorId = '${req.user.userId}'\
-                       group by c.name, p.name;`
+        const query = `SELECT c.id as centerId, c.name as centerName, count(distinct w.workerId) as numberOfWorker,\
+                            count(distinct p.id) as totalProjects, count(distinct if(p.stateId=1, p.id, null)) as createdProjects,\ 
+                            count(distinct if(p.stateId=2, p.id, null)) as processingProjects,\
+                            count(distinct if(p.stateId=3, p.id, null)) as finishedProjects, c.stateId as centerStatus\
+                       FROM centers c\
+                       LEFT JOIN workers w ON c.id = w.centerId\
+                       LEFT JOIN projects p ON c.id = p.centerId\
+                       WHERE supervisorId = '${req.user.userId}'\
+                       GROUP BY 1,2;`
         const [result, metadata] = await sequelize.query(query);
 
-        if(!result.length) {
-            return res.status(403).send({"message": "정보가 조회되지 않습니다."});
-        }
-        let centerName = result[0].name;
-        let totalProjects = 0;
-        let assignedProjects = 0;
-        let submittedProjects = 0;
-        
-        const arr = [];
-        for (let i = 0; i<result.length; i++) {
-            const name = result[i].name;
-            const total = result[i].total;
-            const assigned = result[i].assigned;
-            const submitted = result[i].submitted;
-            
-            if (name == centerName) {
-                totalProjects += total;
-                assignedProjects += assigned;
-                submittedProjects += submitted;
-            } else {
-                arr.push({centerId: result[i-1].id, centerName: centerName, numberOfWorker: result[i-1].worker, totalProjects: totalProjects,
-                    assignedProjects: assignedProjects, submittedProjects: submittedProjects, waitingProjects: (totalProjects - assignedProjects)});
-                centerName = name;
-                totalProjects = 0;
-                assignedProjects = 0;
-                submittedProjects = 0;
-            }
-            if (i == result.length - 1) {
-                arr.push({centerId: result[i].id, centerName: centerName, numberOfWorker: result[i].worker, totalProjects: totalProjects,
-                    assignedProjects: assignedProjects, submittedProjects: submittedProjects, waitingProjects: (totalProjects - assignedProjects)});
-            }
-        }
-
         console.log("center list 반환 성공");
-        return res.status(200).send(JSON.stringify(arr));
+        return res.status(200).send(result);
     } catch (err) {
         console.log("companylist error");
         next(err);
     }
 };
 
-exports.workerinfo = async (req, res, next) => {
-    try {
-        const workerlist = await Worker.findAll({
-            where: {centerId : req.query.centerId},
-            attributes: ['workerId'],
-            include: [{
-                model: User,
-                attributes: [['nickName', 'workerNickName']],
-            }]
-        });
 
-        console.log("Worker list 반환");
-        return res.status(200).send(workerlist);
-    } catch (err) {
-        console.log("workerinfo error");
-        next(err);
-    }
-};
 
-exports.GetProjects = async (req, res, next) => {
+/* exports.GetProjects = async (req, res, next) => {
     try {
         const project = await Project.findAll({
             where : { centerId : req.query.centerId },
-            attributes : [['id', 'projectId'], ['name', 'projectName'], 'total', 'submitted'],
+            attributes : [['id', 'projectId'], ['name', 'projectName']],
             include : [{
                 model: Job,
                 attributes: [[sequelize.fn('COUNT', 'id'), 'total']],
@@ -89,8 +42,9 @@ exports.GetProjects = async (req, res, next) => {
         console.log("getprojects error");
         next(err);
     }
-};
+}; */
 
+// 통과
 exports.GetJobs = async (req, res, next) => {
     try {
         const job = await Job.findAll({
@@ -123,6 +77,27 @@ exports.GetJobs = async (req, res, next) => {
     }
 };
 
+// 통과
+exports.workerinfo = async (req, res, next) => {
+    try {
+        const workerlist = await Worker.findAll({
+            where: {centerId : req.query.centerId},
+            attributes: ['workerId'],
+            include: [{
+                model: User,
+                attributes: [['nickName', 'workerNickName']],
+            }]
+        });
+
+        console.log("Worker list 반환");
+        return res.status(200).send(workerlist);
+    } catch (err) {
+        console.log("workerinfo error");
+        next(err);
+    }
+};
+
+// 통과
 exports.assignment = async (req, res, next) => {
     try {
         const { jobId, workerId } = req.body;

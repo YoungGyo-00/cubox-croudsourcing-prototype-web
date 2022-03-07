@@ -27,7 +27,7 @@ module.exports = class Job extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Job.belongsTo(db.Jstate, {foreignKey:'stateId', targetKey: 'id'});
+        db.Job.belongsTo(db.State, {foreignKey:'stateId', targetKey: 'id'});
         db.Job.belongsTo(db.Worker, {foreignKey: 'workerId', targetKey: 'workerId'});
         db.Job.belongsTo(db.Project, {foreignKey: 'projectId', targetKey: 'id'});
     };

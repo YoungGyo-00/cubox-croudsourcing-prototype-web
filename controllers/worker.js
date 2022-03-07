@@ -1,6 +1,7 @@
 const { } = require('../models');
 const { sequelize } = require('../models');
 
+// 통과
 exports.main = async (req, res, next) => {
     try {
         const query = `select id as jobId, name as jobName, total, submitted, (total - submitted) as waiting,\

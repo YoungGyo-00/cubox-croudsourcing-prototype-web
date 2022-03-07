@@ -3,19 +3,39 @@ const { sequelize } = require('../models');
 
 exports.main = async (req, res, next) => {
     try {
-        const query = `SELECT c.id as centerId, c.name as centerName, count(distinct w.workerId) as numberOfWorker,\
-                            count(distinct p.id) as totalProjects, count(distinct if(p.stateId=1, p.id, null)) as createdProjects,\ 
-                            count(distinct if(p.stateId=2, p.id, null)) as processingProjects,\
-                            count(distinct if(p.stateId=3, p.id, null)) as finishedProjects, c.stateId as centerStatus\
-                       FROM centers c\
-                       LEFT JOIN workers w ON c.id = w.centerId\
-                       LEFT JOIN projects p ON c.id = p.centerId\
-                       WHERE supervisorId = '${req.user.userId}'\
-                       GROUP BY 1,2;`
-        const [result, metadata] = await sequelize.query(query);
+        const centerQuery = `SELECT c.id as centerId, c.name as centerName,\
+                                count(distinct if(p.stateId=1, p.id, null)) as createdProjects,\ 
+                                count(distinct if(p.stateId=2, p.id, null)) as processingProjects,\
+                                count(distinct if(p.stateId=3, p.id, null)) as finishedProjects, c.stateId as centerStatus\
+                             FROM centers c\
+                             LEFT JOIN workers w ON c.id = w.centerId\
+                             LEFT JOIN projects p ON c.id = p.centerId\
+                             WHERE supervisorId = '${req.user.userId}'\
+                             GROUP BY 1,2;`
+        
+        const [center] = await sequelize.query(centerQuery);
+
+        const info = [];
+        for (const temp_center of center){
+            let result = [];
+            const projectQuery = `SELECT p.id as projectId, p.name as projectName, count(distinct j.id) as totalJobs,\
+                                    count(distinct if(j.stateId=1, j.id, null)) as createdJobs,\
+                                    count(distinct if(j.stateId=2, j.id, null)) as proessingJobs,\
+                                    count(distinct if(j.stateId=3, j.id, null)) as finishedJobs\
+                                  FROM projects p\
+                                  LEFT JOIN jobs j ON p.id = j.projectId\
+                                  WHERE centerId = '${temp_center.centerId}'\
+                                  GROUP BY 1, 2;`
+            const [project] = await sequelize.query(projectQuery);
+
+            for (const temp_project of project){
+                result.push(temp_project);
+            }
+            info.push({'center' : temp_center, 'project' : result});
+        }
 
         console.log("center list 반환 성공");
-        return res.status(200).send(result);
+        return res.status(200).send(info);
     } catch (err) {
         console.log("companylist error");
         next(err);

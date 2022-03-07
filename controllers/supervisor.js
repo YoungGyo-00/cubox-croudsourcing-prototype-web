@@ -76,6 +76,11 @@ exports.GetProjects = async (req, res, next) => {
         const project = await Project.findAll({
             where : { centerId : req.query.centerId },
             attributes : [['id', 'projectId'], ['name', 'projectName'], 'total', 'submitted'],
+            include : [{
+                model: Job,
+                attributes: [[sequelize.fn('COUNT', 'id'), 'total']],
+            }],
+            group: ['projectId', 'projectName']
         });
 
         console.log("센터에 배정된 모든 Project 정보");
@@ -88,20 +93,6 @@ exports.GetProjects = async (req, res, next) => {
 
 exports.GetJobs = async (req, res, next) => {
     try {
-        /* const job = await Job.findAll({
-            include: [
-                {
-                    model: Worker,
-                    attributes: {exclude: ['workerId', 'userId', 'centerId', 'projectId']},
-                    include: [{
-                        model: User,
-                        attributes: ['nickName'],
-                    }],
-                },
-            ],
-            where: {projectId : req.query.projectId},
-            attributes: [['id', 'jobId'], ['name', 'jobName'], 'total', 'submitted', 'stateId'],
-        }); */
         const job = await Job.findAll({
             where: {projectId : req.query.projectId},
             attributes: [['id', 'jobId'], ['name', 'jobName'], 'total', 'submitted', 'stateId', 'workerId'],

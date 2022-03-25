@@ -7,8 +7,6 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const passport = require('passport');
 
-dotenv.config(); // process.env => .env 파일을 읽음
-
 const { sequelize } = require('./models')
 const passportConfig = require('./passport');
 const authRouter = require('./routers/auth');
@@ -20,6 +18,7 @@ const { checkSupervisor } = require('./middlewares/supervisor');
 const { checkWorker } = require('./middlewares/worker');
 
 const app = express();
+dotenv.config(); // process.env => .env 파일을 읽음
 passportConfig(); // 패스포트 설정
 app.set('port', process.env.PORT || 8002); // 전역적으로 port 번호 생성
 
